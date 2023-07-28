@@ -21,7 +21,7 @@ public class UserRepository {
 
 
     public int createUser(User user) {
-        String sql = "INSERT INTO USER (USERNAME,PASSWORD,EMAIL,CREATED_AT,UPDATED_AT) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO \"USER\" (USERNAME,PASSWORD,EMAIL,CREATED_AT,UPDATED_AT) VALUES (?,?,?,?,?)";
         return jdbcTemplate.update(sql,
                 user.getUsername(),
                 bCryptPasswordEncoder().encode(user.getPassword()),
