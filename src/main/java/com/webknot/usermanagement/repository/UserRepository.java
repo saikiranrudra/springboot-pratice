@@ -30,7 +30,7 @@ public class UserRepository {
 
 
     public int createUser(User user) {
-        String sql = "INSERT INTO \"USER\" (USERNAME,PASSWORD,EMAIL,CREATED_AT,UPDATED_AT) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO \"user\" (USERNAME,PASSWORD,EMAIL,CREATED_AT,UPDATED_AT) VALUES (?,?,?,?,?)";
         return jdbcTemplate.update(sql,
                 user.getUsername(),
                 bCryptPasswordEncoder().encode(user.getPassword()),
@@ -43,13 +43,13 @@ public class UserRepository {
     public int updateUser(User user) {
 
         StringBuilder query = new StringBuilder();
-        query.append("UPDATE \"USER\" SET ");
+        query.append("UPDATE \"user\" SET ");
 
-        if(user.getEmail() != null) query.append("Email = ? ");
-        if(user.getUsername() != null) query.append("USERNAME = ? ");
-        if(user.getPassword() != null) query.append("PASSWORD = ?");
+        if(user.getEmail() != null) query.append("\"email\" = ? ");
+        if(user.getUsername() != null) query.append("\"username\" = ? ");
+        if(user.getPassword() != null) query.append("\"password\" = ?");
 
-        query.append("WHERE id = ?");
+        query.append("WHERE \"id\" = ?");
 
         return jdbcTemplate.update(query.toString(), (PreparedStatement prepareStatment) -> {
             int arg = 1;
@@ -63,7 +63,7 @@ public class UserRepository {
     }
 
     public List<User> getUserById(int id) {
-        String sql = "SELECT * FROM \"USER\" WHERE ID = ?";
+        String sql = "SELECT * FROM \"user\" WHERE \"id\" = ?";
 
         return jdbcTemplate.query(
                 sql,
@@ -73,7 +73,7 @@ public class UserRepository {
     }
 
     public List<User> getUserByEmail(String email) {
-        String sql = "SELECT * FROM \"USER\" WHERE EMAIL = ?";
+        String sql = "SELECT * FROM \"user\" WHERE \"email\" = ?";
 
         return jdbcTemplate.query(
                 sql,
@@ -83,7 +83,7 @@ public class UserRepository {
     }
 
     public int deleteUser(int id) {
-        String sql = "DELETE FROM \"USER\" WHERE id = ?";
+        String sql = "DELETE FROM \"user\" WHERE \"id\" = ?";
 
         return jdbcTemplate.update(
                 sql,
