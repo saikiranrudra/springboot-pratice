@@ -9,7 +9,7 @@ import org.hibernate.validator.constraints.UniqueElements;
 @Data
 public class User extends BaseEntity {
     @NotBlank(message="User should have a Id")
-    private int id;
+    private Integer id;
 
     @NotBlank(message="User should have username")
     @UniqueElements(message="User should have unique username")
