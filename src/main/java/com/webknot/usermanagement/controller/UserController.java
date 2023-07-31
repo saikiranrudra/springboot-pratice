@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/user")
@@ -21,21 +22,21 @@ public class UserController {
     UserService userService;
 
     @GetMapping("")
-    public ResponseEntity<List<User>> getUserById(@RequestParam(required = false) Integer id,
+    public ResponseEntity<User> getUserById(@RequestParam(required = false) Integer id,
                                                   @RequestParam(required = false) String email) {
-        List<User> users = new ArrayList<>();
-        if(id != null) {
-            users = userService.getUserById(id);
+        try {
+            if(id != null) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(userService.getUserById(id));
+            } else if(email != null) {
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(userService.getUserByEmail(email));
+            }
+        } catch (NoSuchElementException e) { }
 
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(users);
-        } else if(email != null) {
-            users = userService.getUserByEmail(email);
-            return ResponseEntity.status(HttpStatus.OK).body(users);
-        }
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(users);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @PostMapping("")
@@ -55,35 +56,27 @@ public class UserController {
     }
 
     @PutMapping("")
-    public ResponseEntity<Response> updateUser(@RequestBody() User user) {
-
-        Response response = new Response();
+    public ResponseEntity<User> updateUser(@RequestBody() User user) {
 
         if(user.getId() == null) {
-            response.setStatus(Response.Status.FAILURE);
-            response.setMessage("Id is required for updating user");
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(response);
+                    .body(null);
         }
 
-        int result = userService.updateUser(user);
+        User updateUser = userService.updateUser(user);
 
 
-        if(result <= 0) {
-            response.setStatus(Response.Status.FAILURE);
-            response.setMessage("Failed Updating data");
+        if(user == null) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(response);
+                    .body(updateUser);
         }
 
-        response.setStatus(Response.Status.SUCCESS);
-        response.setMessage("User updated successfully");
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
-                .body(response);
+                .body(updateUser);
     }
 
     @DeleteMapping("")
@@ -94,19 +87,11 @@ public class UserController {
                     .body(new Response("user id is required", Response.Status.FAILURE));
 
 
-        int result = userService.deleteUser(id);
-
-        if(result <= 0)
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new Response("Deletion failed", Response.Status.FAILURE));
-
+        userService.deleteUser(id);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new Response("User deleted successfully", Response.Status.SUCCESS));
-
-
 
     }
 }
