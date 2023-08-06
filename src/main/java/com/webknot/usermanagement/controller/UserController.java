@@ -4,6 +4,9 @@ import com.webknot.usermanagement.model.Response;
 import com.webknot.usermanagement.model.User;
 import com.webknot.usermanagement.repository.UserRepository;
 import com.webknot.usermanagement.service.UserService;
+import com.webknot.usermanagement.types.AuthenticationRequest;
+import com.webknot.usermanagement.types.AuthenticationResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -17,12 +20,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    UserService userService;
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping("")
     public ResponseEntity<User> getUserById(@RequestParam(required = false) Integer id, @RequestParam(required = false) String email) {
@@ -45,19 +47,13 @@ public class UserController {
     }
 
     @PostMapping("")
-    public ResponseEntity<User> createUser(@RequestBody() User user) {
+    public ResponseEntity<AuthenticationResponse> createUser(@RequestBody() User user) {
+        return ResponseEntity.ok(userService.createUser(user));
+    }
 
-        User createdUser = userService.createUser(user);
-
-        if(createdUser == null) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(user);
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticateUser(@RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(userService.authenticate(request));
     }
 
     @PutMapping("")
